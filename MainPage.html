@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Holidays</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .holiday-section {
+            transition: flex 0.5s ease, transform 0.3s ease;
+        }
+
+        .holiday-section:hover {
+            transform: scale(1.02);
+        }
+
+        .holiday-section .btn {
+            transition: transform 0.3s ease;
+        }
+
+        .holiday-section .btn:hover {
+            transform: scale(1.1);
+        }
+        /* Mobile adjustments: stack sections vertically, make buttons full width */
+        @media (max-width: 576px) {
+            .container-fluid {
+                flex-direction: column !important;
+                height: auto !important;
+                min-height: 100vh !important;
+                padding: 0.5rem;
+            }
+
+            .holiday-section {
+                flex: 1 0 auto !important;
+                width: 100% !important;
+                padding: 2rem 1rem;
+                min-height: 0;
+                align-items: stretch !important;
+                margin-bottom: 0.5rem;
+            }
+
+            .holiday-section h1 {
+                font-size: 1.5rem;
+                text-align: center;
+            }
+
+            .holiday-section p {
+                width: 100% !important;
+                text-align: center;
+            }
+
+            .holiday-section .btn {
+                width: 100%;
+            }
+            body { padding: 0.5rem; }
+            .display-4 { font-size: 2rem; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container-fluid vh-100 d-flex p-0">
+        <!-- Left Section -->
+        <div 
+            id="public-holidays-section" 
+            class="holiday-section col-md-6 d-flex flex-column justify-content-center align-items-center bg-dark text-white opacity-50"
+            onmouseover="expandSection('public-holidays-section', 'school-holidays-section')"
+            onmouseout="resetSections()">
+            <h1 class="display-4 fw-bold">Public Holidays</h1>
+            <p id="public-description" class="text-center w-75"></p>
+            <button class="btn btn-warning btn-lg mt-3" onclick="openPage('PublicHolidays.html')">Explore Public Holidays</button>
+        </div>
+        
+        <!-- Right Section -->
+        <div 
+            id="school-holidays-section" 
+            class="holiday-section col-md-6 d-flex flex-column justify-content-center align-items-center bg-warning text-dark opacity-50"
+            onmouseover="expandSection('school-holidays-section', 'public-holidays-section')"
+            onmouseout="resetSections()">
+            <h1 class="display-4 fw-bold">School Holidays</h1>
+            <p id="school-description" class="text-center w-75"></p>
+            <button class="btn btn-dark btn-lg mt-3" onclick="openPage('SchoolHolidays.html')">Explore School Holidays</button>
+        </div>
+    </div>
+
+    <script>
+        // Function to simulate typing effect
+        function typeWriter(elementId, text, speed) {
+            const element = document.getElementById(elementId);
+            let index = 0;
+
+            function type() {
+                if (index < text.length) {
+                    element.innerHTML += text.charAt(index);
+                    index++;
+                    setTimeout(type, speed);
+                }
+            }
+
+            type();
+        }
+
+        // Expand hovered section and shrink the other
+        function expandSection(hoveredId, otherId) {
+            const hovered = document.getElementById(hoveredId);
+            const other = document.getElementById(otherId);
+
+            hovered.style.flex = "3";
+            hovered.classList.remove("opacity-50");
+            other.style.flex = "1";
+            other.classList.add("opacity-50");
+        }
+
+        // Reset both sections to their original size
+        function resetSections() {
+            const publicSection = document.getElementById("public-holidays-section");
+            const schoolSection = document.getElementById("school-holidays-section");
+
+            publicSection.style.flex = "1";
+            schoolSection.style.flex = "1";
+
+            publicSection.classList.add("opacity-50");
+            schoolSection.classList.add("opacity-50");
+        }
+
+        // Function to navigate to the respective page
+        function openPage(page) {
+            window.location.href = page;
+        }
+
+        const publicDescription = "Explore Switzerland's 21 diverse public holidays, reflecting the nation's rich traditions.";
+        const schoolDescription = "Discover Austria's 8 school holidays, providing balanced breaks for students and families.";
+
+        typeWriter("public-description", publicDescription, 30);
+        setTimeout(() => {
+            typeWriter("school-description", schoolDescription, 30);
+        }, publicDescription.length * 30 + 500);
+    </script>
+</body>
+</html>

@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Public Holidays</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .holiday-box {
+            border-radius: 10px;
+            background-color: #ffc107;
+            color: #212529;
+            opacity: 0.5;
+            transition: transform 0.3s ease, opacity 0.3s ease;
+            cursor: pointer;
+            min-height: 150px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            text-align: center;
+        }
+
+        .holiday-box:hover {
+            transform: scale(1.05);
+            opacity: 1;
+            box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        .holiday-details {
+            display: none;
+        }
+
+        .holiday-box:hover .holiday-details {
+            display: block;
+        }
+
+        .holiday-box:hover .holiday-title,
+        .holiday-box:hover .holiday-date {
+            display: none;
+        }
+
+        .holiday-title {
+            font-size: 1.25rem;
+            word-wrap: break-word;
+        }
+        /* Responsive tweaks */
+        @media (max-width: 576px) {
+            .holiday-box {
+                min-height: auto;
+                padding: 1rem;
+            }
+
+            .holiday-title { font-size: 1rem; }
+        }
+
+        @media (min-width: 577px) and (max-width: 991px) {
+            .holiday-box { min-height: 130px; }
+        }
+    </style>
+</head>
+<body class="bg-dark text-light">
+    <h1 class="text-center mt-4">Public Holidays</h1>
+
+    <!-- Filter Section -->
+    <div class="container mt-3">
+        <div class="row g-2">
+            <div class="col-md-6">
+                <label for="nationwide-filter" class="form-label">Nationwide</label>
+                <select id="nationwide-filter" class="form-select" onchange="applyFilters()">
+                    <option value="">All</option>
+                    <option value="true">Yes</option>
+                    <option value="false">No</option>
+                </select>
+            </div>
+            <div class="col-md-6">
+                <label for="regional-filter" class="form-label">Regional Scope</label>
+                <select id="regional-filter" class="form-select" onchange="applyFilters()">
+                    <option value="">All</option>
+                    <option value="regional">Regional</option>
+                    <option value="local">Local</option>
+                </select>
+            </div>
+        </div>
+    </div>
+
+    <div id="holiday-container" class="container mt-4">
+        <div id="holiday-row" class="row g-3 justify-content-center"></div>
+    </div>
+
+    <script>
+        let holidays = [];
+
+        async function fetchAndDisplayPublicHolidays() {
+            try {
+                const response = await fetch('https://openholidaysapi.org/PublicHolidays?countryIsoCode=CH&languageIsoCode=DE&validFrom=2022-01-01&validTo=2022-06-30');
+                holidays = await response.json();
+                renderHolidays(holidays);
+            } catch (error) {
+                console.error('Error fetching holidays:', error);
+            }
+        }
+
+        function renderHolidays(filteredHolidays) {
+                const row = document.getElementById('holiday-row');
+                row.innerHTML = '';
+                filteredHolidays.forEach(holiday => {
+                    const nameText = holiday.name && holiday.name.length > 0 ? holiday.name[0].text : 'N/A';
+
+                    const col = document.createElement('div');
+                    col.className = 'col-12 col-sm-6 col-md-4 col-lg-3';
+
+                    const box = document.createElement('div');
+                    box.className = 'holiday-box p-3 h-100';
+                    box.innerHTML = `
+                        <h5 class="holiday-title">${nameText}</h5>
+                        <p class="holiday-date">${holiday.startDate} - ${holiday.endDate}</p>
+                        <div class="holiday-details text-center">
+                            <p><strong>Type:</strong> ${holiday.type}</p>
+                            <p><strong>Nationwide:</strong> ${holiday.nationwide ? 'Yes' : 'No'}</p>
+                            <p><strong>Regional Scope:</strong> ${holiday.regionalScope}</p>
+                        </div>
+                    `;
+                    box.onclick = () => {
+                        window.location.href = `details.html?holidayName=${encodeURIComponent(nameText)}`;
+                    };
+
+                    col.appendChild(box);
+                    row.appendChild(col);
+                });
+        }
+
+        function applyFilters() {
+            const nationwide = document.getElementById('nationwide-filter').value;
+            const regional = document.getElementById('regional-filter').value;
+
+            const filteredHolidays = holidays.filter(holiday => {
+                const matchesNationwide = !nationwide || String(holiday.nationwide) === nationwide;
+                const matchesRegional = !regional || (holiday.regionalScope && holiday.regionalScope.toLowerCase() === regional.toLowerCase());
+                return matchesNationwide && matchesRegional;
+            });
+
+            renderHolidays(filteredHolidays);
+        }
+
+        fetchAndDisplayPublicHolidays();
+    </script>
+</body>
+</html>
